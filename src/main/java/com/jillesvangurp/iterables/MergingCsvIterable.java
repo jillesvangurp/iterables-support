@@ -14,6 +14,12 @@ public class MergingCsvIterable implements Iterable<List<List<String>>>{
     private final int primaryKeyIndex;
     private final int foreignKeyIndex;
 
+    /**
+     * @param primary CSVLineIterable for the sorted (on the primary key) csv with the primary key.
+     * @param secondary CSVLineIterable for the csv with the foreign key, sorted on this key.
+     * @param primaryKyIndex column that contains the primary key
+     * @param foreignKeyIndex colum that contains the foreign key
+     */
     public MergingCsvIterable(CSVLineIterable primary, CSVLineIterable secondary, int primaryKyIndex, int foreignKeyIndex) {
         this.primary = primary;
         this.secondary = secondary;

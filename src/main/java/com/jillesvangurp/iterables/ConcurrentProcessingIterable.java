@@ -13,28 +13,56 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Iterable that processes the input concurrently using a {@link Processor} to produce its output.
+ * 
+ * Please note that this class implements {@link Closeable} and that you are supposed to use a try with resources
+ * call. The reason for this is to guarantee the executor used for delegating the work is shut down correctly.
+ * 
+ * @param <Input> type of the input processed by this iterable
+ * @param <Output> type of the output processed by this iterable
+ */
 public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Output>, Closeable {
 
-    private static final int BLOCK_SIZE = 1000;
-    private static final int THREAD_POOL_SIZE = 4; // 4 cpu cores + 1 producer thread that doesn't do much
-    private static final int QUEUE_CAPACITY = 10;
+    private final int blockSize;
+    private final int threadPoolSize; 
 
     private final Processor<Input, Output> processor;
     private final Iterable<Input> input;
     private final ExecutorService executorService;
-    private final LinkedBlockingQueue<List<Input>> scheduledWork = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
-    private final LinkedBlockingQueue<List<Output>> completedWork = new LinkedBlockingQueue<>(QUEUE_CAPACITY);
+    private final LinkedBlockingQueue<List<Input>> scheduledWork;
+    private final LinkedBlockingQueue<List<Output>> completedWork;
     private final AtomicBoolean done = new AtomicBoolean(false);
 
-    public ConcurrentProcessingIterable(Iterable<Input> input, Processor<Input, Output> processor) {
+    /**
+     * Create a new iterable.
+     * 
+     * @param input
+     *            iterable with the input
+     * @param processor
+     *            {@link Processor} that processes each element in the input
+     * @param blockSize
+     *            size of the list of elements that is processed by the worker threads. Having a large list means there
+     *            is less contention on the queues by the threads.
+     * @param threadPoolSize
+     *            number of threads used. What is sensible very much depends on the work load of the processor.
+     *            Generally you don't want to have more threads than CPU cores + one for the producer thread used
+     *            internally to queue stuff for the worker threads. 
+     * @param queueCapacity
+     */
+    public ConcurrentProcessingIterable(Iterable<Input> input, Processor<Input, Output> processor, int blockSize, int threadPoolSize, int queueCapacity) {
         this.input = input;
         this.processor = processor;
-        executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE, new ThreadFactory() {
+        this.blockSize = blockSize;
+        this.threadPoolSize = threadPoolSize;
+        executorService = Executors.newFixedThreadPool(threadPoolSize, new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r) {
                 return new Thread(r, "processor");
             }
         });
+        scheduledWork = new LinkedBlockingQueue<>(queueCapacity);
+        completedWork = new LinkedBlockingQueue<>(queueCapacity);
     }
 
     @Override
@@ -44,7 +72,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
             @Override
             public void run() {
                 try {
-                    ArrayList<Input> block = new ArrayList<>(BLOCK_SIZE);
+                    ArrayList<Input> block = new ArrayList<>(blockSize);
                     for (Input i : input) {
                         block.add(i);
                         if (block.size() == 1000) {
@@ -64,7 +92,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
         });
 
         // start consumer threads
-        for (int i = 0; i < THREAD_POOL_SIZE - 1; i++) {
+        for (int i = 0; i < threadPoolSize - 1; i++) {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -72,7 +100,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     try {
                         while ((block = scheduledWork.poll(100, TimeUnit.MILLISECONDS)) != null || !done.get()) {
                             if(block != null) {
-                                ArrayList<Output> outputBlock = new ArrayList<>(BLOCK_SIZE);
+                                ArrayList<Output> outputBlock = new ArrayList<>(blockSize);
                                 for (Input input : block) {
                                     outputBlock.add(processor.process(input));
                                 }

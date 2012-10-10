@@ -3,25 +3,30 @@ package com.jillesvangurp.iterables;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class FilteringIterable<S> implements Iterable<S> {
-    private final Iterable<S> iterable;
-    private final Filter<S> filter;
+/**
+ * Filter the elements in an Iterable using a {@link Filter}.
+ *
+ * @param <T>
+ */
+public class FilteringIterable<T> implements Iterable<T> {
+    private final Iterable<T> iterable;
+    private final Filter<T> filter;
 
-    public FilteringIterable(Iterable<S> iterable, Filter<S> filter) {
+    public FilteringIterable(Iterable<T> iterable, Filter<T> filter) {
         this.iterable = iterable;
         this.filter = filter;
     }
 
     @Override
-    public Iterator<S> iterator() {
-        final Iterator<S> iterator = iterable.iterator();
-        return new Iterator<S>() {
-            S next = null;
+    public Iterator<T> iterator() {
+        final Iterator<T> iterator = iterable.iterator();
+        return new Iterator<T>() {
+            T next = null;
 
             @Override
             public boolean hasNext() {
                 while (iterator.hasNext() && next == null) {
-                    S candidate = iterator.next();
+                    T candidate = iterator.next();
                     if (filter.passes(candidate)) {
                         next = candidate;
                     }
@@ -30,9 +35,9 @@ public class FilteringIterable<S> implements Iterable<S> {
             }
 
             @Override
-            public S next() {
+            public T next() {
                 if (hasNext()) {
-                    S result = next;
+                    T result = next;
                     next=null;
                     return result;
                 } else {

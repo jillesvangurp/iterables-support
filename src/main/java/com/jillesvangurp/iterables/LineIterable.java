@@ -11,9 +11,15 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.zip.GZIPInputStream;
 
+/**
+ * Iterate over lines in a stream.
+ */
 public class LineIterable implements Iterable<String>, Closeable{
     private final BufferedReader bufferedReader;
 
+    /**
+     * @param r any reader. Note. this class creates its own buffered reader so there is no need to create one in advance.
+     */
     public LineIterable(Reader r) {
         bufferedReader = new BufferedReader(r);
     }

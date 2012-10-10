@@ -2,6 +2,11 @@ package com.jillesvangurp.iterables;
 
 import java.util.Iterator;
 
+/**
+ * Iterator that implements a peek method.
+ *
+ * @param <T>
+ */
 public class PeekableIterator<T> implements Iterator<T> {
 
     private final Iterator<T> iterator;

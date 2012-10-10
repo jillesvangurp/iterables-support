@@ -7,7 +7,12 @@ import java.util.NoSuchElementException;
 
 import com.google.common.base.Splitter;
 
-public class CSVLineIterable implements Iterable<List<String>>{
+/**
+ * Simple iterable that breaks lines into fields based on a separator.
+ * Note. this class is fairly simplistic compared to solutions like open csv and doesn't support things like escaping
+ * currently. Feel free to contribute patches to fix this.
+ */
+public class CSVLineIterable implements Iterable<List<String>> {
     private final Iterable<String> lineIterator;
     private final char delimiter;
 
@@ -29,9 +34,9 @@ public class CSVLineIterable implements Iterable<List<String>>{
             @Override
             public List<String> next() {
                 String line = iterator.next();
-                if(line != null) {
+                if (line != null) {
                     List<String> result = new ArrayList<>();
-                    for(String field:Splitter.on(delimiter).trimResults().split(line)) {
+                    for (String field : Splitter.on(delimiter).trimResults().split(line)) {
                         result.add(field);
                     }
                     return result;

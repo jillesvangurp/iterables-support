@@ -29,7 +29,7 @@ public class ConcurrentProcessingIterableTest {
             public Integer process(Integer input) {
                 return 42;
             }
-        })){    
+        }, 1000, 4, 10)){    
             int count=0;
             for(@SuppressWarnings("unused") Integer o:cpi) {
                 count++;
