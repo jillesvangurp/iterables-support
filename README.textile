@@ -1,0 +1,66 @@
+h1. Introduction
+
+Iterables support is a small collection of utility classes that I developed while processing a lot of content in files.
+
+Processing content involves things like opening files, parsing them line by line, extracting blobs of json or xml that may span multiple line, dealing with character encoding problems, etc. 
+
+Most of this stuff is pretty basic and yet you end up with a lot of boiler plate code that needs testing and attention. Java provides you with all the basic building blocks but you have to do a lot of work to put them together.
+
+I've been doing this stuff for some years and usually end up with some mini framework for making life bearable. This time, I started with a clean slate and built it properly with the idea of just putting it out there. So here it is. 
+
+If you want to do some data crunching in Java, you could do worse than start out with this. Sure, you could go for hadoop or any of the other fancy things out there.  But seriously, processing 10GB of wikipedia dump files is not that demanding that you can justify setting up a hadoop cluster and overengineering what would be a three line python file otherwise. With Java the boiler plate code can be a bit overwhelming. 
+
+However, with these classes, you get some nice out of the box features and an easy to use framework with all of the building blocks you need for iterating over and processing blobs of information reliable and fast. This results in a lot less boiler plate code and makes things almost as easy as in python. Combine that with concurrency, decent memory management and a few other things Java coders take for granted and things are starting to look pretty OK.
+
+
+h1. Features and design
+
+This framework represents inputs as iterables that one can iterate over using a foreach loop. Several iterables are provided that can be combined to do useful things.
+
+* LineIterable. The most basic iterable is the LineIterable, which takes a stream and iterates over the lines as strings. It basically makes dealing with BufferedReaders a lot less tedious.
+
+* CSVLineIterable. If you have a simple csv file, you can use the line iterable to construct a CSVLineIterable and iterate over the list of fields.
+
+* MergingCSVIterable. Say you have two csv files that have a 1 to many relation and you want the join of those two files. Provided the files are sorted correctly, you can merge using an id. MergingCSVIterable does this. I've used it for processing millions of GeoNames and their translations (in a separate file).  
+
+* If you have a big xml file with tags inside that you want to process that span multiple lines, use the BlobIterable and process each blob separately. Simply configure it with the begin and end tag and process each blob one by one.
+
+* Often processing is expensive and you want to process things concurrently. This can be tricky to get right. So, use the ConcurrentProcessingIterable and configure it with the input iterable and a processor. It will do the rest for you and you simply iterate over the processed output.
+
+* Sometimes you want to filter what you iterate over: FilteringIterable does that. Simply implement the Filter interface and pass an instance to the FilteringIterable and you've got filtering.
+
+* Sometimes, you want to see what's next before it's coming. PeekableIterable allows a convenient peek() method that behaves just like next but without moving the iterator forward. 
+
+h1. Installation
+
+It's a maven project. So, checking it out and doing a mvn clean install should do the trick.
+
+Alternatively, you may use my github maven repository, which is where I deploy releases for some of my projects. In order to use this, you have to configure your settings.xml as explained here: https://github.com/jillesvangurp/mvnrepo
+
+Then you can add the following dependency:
+
+<pre>
+<code>
+<dependency>
+    <groupId>com.github.jillesvangurp</groupId>
+    <artifactId>iterables-support</artifactId>
+    <version>x.y</version>
+</dependency>
+</code>
+</pre>
+
+Alternatively, you can exercise your rights under the license and simply copy and adapt as needed. The "license":https://github.com/jillesvangurp/xmltools/blob/master/LICENSE allows you to do this and I have no problems with this although I do appreciate attribution.
+
+Should anyone like this licensed differently, please contact me.
+
+If anyone wants to fix stuff just send me a pull request.
+
+h1. License
+
+Like all my other projects, this project is licensed under the so-called MIT license. 
+
+For more details see the LICENSE file
+
+h1. Changelog
+
+TODO
