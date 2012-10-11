@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,7 +33,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
     private final ExecutorService executorService;
     private final LinkedBlockingQueue<List<Input>> scheduledWork;
     private final LinkedBlockingQueue<List<Output>> completedWork;
-    private final AtomicBoolean done = new AtomicBoolean(false);
+    private final AtomicBoolean doneProducing = new AtomicBoolean(false);
 
     /**
      * Create a new iterable.
@@ -84,12 +85,13 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     if (block.size() > 0) {
                         scheduledWork.put(block);
                     }
-                    done.set(true);
+                    doneProducing.set(true);
                 } catch (InterruptedException e) {
                     throw new IllegalStateException(e);
-                }
+                } 
             }
         });
+        final CountDownLatch latch = new CountDownLatch(threadPoolSize-1);
 
         // start consumer threads
         for (int i = 0; i < threadPoolSize - 1; i++) {
@@ -98,17 +100,21 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                 public void run() {
                     List<Input> block;
                     try {
-                        while ((block = scheduledWork.poll(100, TimeUnit.MILLISECONDS)) != null || !done.get()) {
+                        while ((block = scheduledWork.poll(100, TimeUnit.MILLISECONDS)) != null || !doneProducing.get()) {
                             if(block != null) {
                                 ArrayList<Output> outputBlock = new ArrayList<>(blockSize);
                                 for (Input input : block) {
                                     outputBlock.add(processor.process(input));
                                 }
-                                completedWork.put(outputBlock);
+                                if(outputBlock.size() >0) {
+                                    completedWork.put(outputBlock);
+                                }
                             }
                         }
                     } catch (InterruptedException e) {
                         throw new IllegalStateException(e);
+                    } finally {
+                        latch.countDown();
                     }
                 }
             });
@@ -127,26 +133,19 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     } else if (currentBlock != null && blockIndex < currentBlock.size()) {
                         next = currentBlock.get(blockIndex++);
                         return true;
-                    } else if ((currentBlock = completedWork.poll(100,TimeUnit.MILLISECONDS)) != null || !done.get()) {
-                        if(currentBlock != null) {
-                            blockIndex = 0;
-                            return hasNext();
-                        } else  if (done.get()){
-                            return false;
-                        } else {
-                            // if completedWork has no results yet, poll returns immediately with null and you get a stack overflow
-                            // so wait
-                            Thread.sleep(100);
-                            return hasNext();
-                        }
-                    } else {
+                    } else if ((currentBlock = completedWork.poll(100,TimeUnit.MILLISECONDS)) != null) {
+                        blockIndex = 0;
+                        return hasNext();                       
+                    } else if(doneProducing.get() && scheduledWork.size() == 0 && completedWork.size() ==0 && latch.getCount()==0) {
                         return false;
+                    } else {
+                        return hasNext();
                     }
                 } catch (InterruptedException e) {
                     throw new IllegalStateException(e);
                 }
             }
-
+            
             @Override
             public Output next() {
                 if (hasNext()) {
@@ -167,7 +166,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
 
     @Override
     public void close() throws IOException {
-        executorService.shutdownNow();
+        executorService.shutdown();
         try {
             executorService.awaitTermination(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {

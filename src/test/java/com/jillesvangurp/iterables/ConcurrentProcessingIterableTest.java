@@ -13,7 +13,8 @@ import org.testng.annotations.Test;
 public class ConcurrentProcessingIterableTest {
     @DataProvider
     private Object[][] sizes() {
-        return new Integer[][] {{0}, {10}, {999}, {1001}, {10001},{66666},{10000001}};
+//        return new Integer[][] {{2000}};
+        return new Integer[][] {{0}, {10}, {999}, {1001}, {10001},{66666}};
     }
     
     @Test(dataProvider="sizes")
@@ -27,9 +28,14 @@ public class ConcurrentProcessingIterableTest {
 
             @Override
             public Integer process(Integer input) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 return 42;
             }
-        }, 1000, 4, 10)){    
+        }, 31, 300, 2)){    
             int count=0;
             for(@SuppressWarnings("unused") Integer o:cpi) {
                 count++;
