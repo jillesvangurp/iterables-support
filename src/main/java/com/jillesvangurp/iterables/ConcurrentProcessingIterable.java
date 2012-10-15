@@ -76,9 +76,9 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     ArrayList<Input> block = new ArrayList<>(blockSize);
                     for (Input i : input) {
                         block.add(i);
-                        if (block.size() == 1000) {
+                        if (block.size() == blockSize) {
                             scheduledWork.put(block);
-                            block = new ArrayList<>(1000);
+                            block = new ArrayList<>(blockSize);
                         }
                     }
                     ;
