@@ -12,7 +12,7 @@ public class FilteringIterableTest {
 
     public void shouldFilter() {
         int count=0;
-        for(@SuppressWarnings("unused") Integer i: new FilteringIterable<Integer>(Arrays.asList(1,2,3,4,5,6,7,8), new Filter<Integer>() {
+        for(@SuppressWarnings("unused") Integer i: FilteringIterable.filter(Arrays.asList(1,2,3,4,5,6,7,8), new Filter<Integer>() {
             @Override
             public boolean passes(Integer o) {
                 return o % 2 == 0;

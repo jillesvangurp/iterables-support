@@ -51,4 +51,9 @@ public class FilteringIterable<T> implements Iterable<T> {
             }
         };
     }
+    
+    public static <S> Iterable<S> filter(Iterable<S> it, Filter<S> filter) {
+        return new FilteringIterable<S>(it, filter);
+    }
+
 }
