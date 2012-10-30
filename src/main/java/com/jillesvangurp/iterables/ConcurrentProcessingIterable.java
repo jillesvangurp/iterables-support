@@ -36,6 +36,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
     private final LinkedBlockingQueue<List<Input>> scheduledWork;
     private final LinkedBlockingQueue<List<Output>> completedWork;
     private final AtomicBoolean doneProducing = new AtomicBoolean(false);
+    private final AtomicBoolean abort = new AtomicBoolean(false);
 
     /**
      * Create a new iterable.
@@ -77,6 +78,9 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                 try {
                     ArrayList<Input> block = new ArrayList<>(blockSize);
                     for (Input i : input) {
+                        if(abort.get()) {
+                            break;
+                        }
                         block.add(i);
                         if (block.size() == blockSize) {
                             scheduledWork.put(block);
@@ -103,7 +107,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                 public void run() {
                     List<Input> block;
                     try {
-                        while ((block = scheduledWork.poll(100, TimeUnit.MILLISECONDS)) != null || !doneProducing.get()) {
+                        while (((block = scheduledWork.poll(100, TimeUnit.MILLISECONDS)) != null || !doneProducing.get()) && !abort.get()) {
                             if (block != null) {
                                 ArrayList<Output> outputBlock = new ArrayList<>(blockSize);
                                 for (Input input : block) {
@@ -131,6 +135,9 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
             @Override
             public boolean hasNext() {
                 try {
+                    if(abort.get()) {
+                        return false;
+                    }
                     if (next != null) {
                         return true;
                     } else if (currentBlock != null && blockIndex < currentBlock.size()) {
@@ -175,5 +182,10 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
         } catch (InterruptedException e) {
             throw new IllegalStateException("executor failed to shut down cleanly within 1 second");
         }
+    }
+
+    public void abort() {
+        // force all the loops to break
+        abort.set(true);
     }
 }
