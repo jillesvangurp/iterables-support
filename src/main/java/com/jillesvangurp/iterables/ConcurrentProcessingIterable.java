@@ -17,16 +17,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Iterable that processes the input concurrently using a {@link Processor} to produce its output.
  * 
- * Please note that this class implements {@link Closeable} and that you are supposed to use a try with resources
- * call. The reason for this is to guarantee the executor used for delegating the work is shut down correctly.
+ * Please note that this class implements {@link Closeable} and that you are supposed to use a try with resources call.
+ * The reason for this is to guarantee the executor used for delegating the work is shut down correctly.
  * 
- * @param <Input> type of the input processed by this iterable
- * @param <Output> type of the output processed by this iterable
+ * @param <Input>
+ *            type of the input processed by this iterable
+ * @param <Output>
+ *            type of the output processed by this iterable
  */
 public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Output>, Closeable {
 
     private final int blockSize;
-    private final int threadPoolSize; 
+    private final int threadPoolSize;
 
     private final Processor<Input, Output> processor;
     private final Iterable<Input> input;
@@ -48,7 +50,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
      * @param threadPoolSize
      *            number of threads used. What is sensible very much depends on the work load of the processor.
      *            Generally you don't want to have more threads than CPU cores + one for the producer thread used
-     *            internally to queue stuff for the worker threads. 
+     *            internally to queue stuff for the worker threads.
      * @param queueCapacity
      */
     public ConcurrentProcessingIterable(Iterable<Input> input, Processor<Input, Output> processor, int blockSize, int threadPoolSize, int queueCapacity) {
@@ -85,13 +87,14 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     if (block.size() > 0) {
                         scheduledWork.put(block);
                     }
-                    doneProducing.set(true);
                 } catch (InterruptedException e) {
                     throw new IllegalStateException(e);
-                } 
+                } finally {
+                    doneProducing.set(true);
+                }
             }
         });
-        final CountDownLatch latch = new CountDownLatch(threadPoolSize-1);
+        final CountDownLatch activeConsumers = new CountDownLatch(threadPoolSize - 1);
 
         // start consumer threads
         for (int i = 0; i < threadPoolSize - 1; i++) {
@@ -101,12 +104,12 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     List<Input> block;
                     try {
                         while ((block = scheduledWork.poll(100, TimeUnit.MILLISECONDS)) != null || !doneProducing.get()) {
-                            if(block != null) {
+                            if (block != null) {
                                 ArrayList<Output> outputBlock = new ArrayList<>(blockSize);
                                 for (Input input : block) {
                                     outputBlock.add(processor.process(input));
                                 }
-                                if(outputBlock.size() >0) {
+                                if (outputBlock.size() > 0) {
                                     completedWork.put(outputBlock);
                                 }
                             }
@@ -114,7 +117,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     } catch (InterruptedException e) {
                         throw new IllegalStateException(e);
                     } finally {
-                        latch.countDown();
+                        activeConsumers.countDown();
                     }
                 }
             });
@@ -133,10 +136,10 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     } else if (currentBlock != null && blockIndex < currentBlock.size()) {
                         next = currentBlock.get(blockIndex++);
                         return true;
-                    } else if ((currentBlock = completedWork.poll(100,TimeUnit.MILLISECONDS)) != null) {
+                    } else if ((currentBlock = completedWork.poll(100, TimeUnit.MILLISECONDS)) != null) {
                         blockIndex = 0;
-                        return hasNext();                       
-                    } else if(doneProducing.get() && scheduledWork.size() == 0 && completedWork.size() ==0 && latch.getCount()==0) {
+                        return hasNext();
+                    } else if (doneProducing.get() && scheduledWork.size() == 0 && completedWork.size() == 0 && activeConsumers.getCount() == 0) {
                         return false;
                     } else {
                         return hasNext();
@@ -145,7 +148,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     throw new IllegalStateException(e);
                 }
             }
-            
+
             @Override
             public Output next() {
                 if (hasNext()) {
