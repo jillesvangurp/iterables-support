@@ -60,9 +60,10 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
         this.blockSize = blockSize;
         this.threadPoolSize = threadPoolSize;
         executorService = Executors.newFixedThreadPool(threadPoolSize, new ThreadFactory() {
+            int number=0;
             @Override
             public Thread newThread(Runnable r) {
-                return new Thread(r, "processor");
+                return new Thread(r, "concurrentProcessingIterableThread_"+number++);
             }
         });
         scheduledWork = new LinkedBlockingQueue<>(queueCapacity);
@@ -107,7 +108,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                 public void run() {
                     List<Input> block;
                     try {
-                        while (((block = scheduledWork.poll(100, TimeUnit.MILLISECONDS)) != null || !doneProducing.get()) && !abort.get()) {
+                        while (((block = scheduledWork.poll(10, TimeUnit.MILLISECONDS)) != null || !doneProducing.get()) && !abort.get()) {
                             if (block != null) {
                                 ArrayList<Output> outputBlock = new ArrayList<>(blockSize);
                                 for (Input input : block) {
@@ -143,7 +144,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                     } else if (currentBlock != null && blockIndex < currentBlock.size()) {
                         next = currentBlock.get(blockIndex++);
                         return true;
-                    } else if ((currentBlock = completedWork.poll(100, TimeUnit.MILLISECONDS)) != null) {
+                    } else if ((currentBlock = completedWork.poll(10, TimeUnit.MILLISECONDS)) != null) {
                         blockIndex = 0;
                         return hasNext();
                     } else if (doneProducing.get() && scheduledWork.size() == 0 && completedWork.size() == 0 && activeConsumers.getCount() == 0) {
