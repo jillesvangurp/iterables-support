@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Filter the elements in an Iterable using a {@link Filter}.
- *
+ * 
  * @param <T>
  */
 public class FilteringIterable<T> implements Iterable<T> {
@@ -27,8 +27,13 @@ public class FilteringIterable<T> implements Iterable<T> {
             public boolean hasNext() {
                 while (iterator.hasNext() && next == null) {
                     T candidate = iterator.next();
-                    if (filter.passes(candidate)) {
-                        next = candidate;
+                    try {
+                        if (filter.passes(candidate)) {
+                            next = candidate;
+                        }
+                    } catch (PermanentlyFailToPassException e) {
+                        // special poison pill to force the iterator to abort
+                        return false;
                     }
                 }
                 return next != null;
@@ -38,7 +43,7 @@ public class FilteringIterable<T> implements Iterable<T> {
             public T next() {
                 if (hasNext()) {
                     T result = next;
-                    next=null;
+                    next = null;
                     return result;
                 } else {
                     throw new NoSuchElementException();
@@ -51,9 +56,4 @@ public class FilteringIterable<T> implements Iterable<T> {
             }
         };
     }
-    
-    public static <S> Iterable<S> filter(Iterable<S> it, Filter<S> filter) {
-        return new FilteringIterable<S>(it, filter);
-    }
-
 }

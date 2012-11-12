@@ -5,6 +5,7 @@ package com.jillesvangurp.iterables;
  *
  * @param <T>
  */
+@Deprecated // use the static methods in FilteringIterable
 public final class SkippingFilter<T> implements Filter<T> {
     long count=0;
     private final long threshold;
@@ -18,6 +19,6 @@ public final class SkippingFilter<T> implements Filter<T> {
     }
     
     public static <S> Iterable<S> filter(Iterable<S> it, long threshold) {
-        return FilteringIterable.filter(it, new SkippingFilter<S>(threshold));
+        return Iterables.filter(it, new SkippingFilter<S>(threshold));
     }
 }
