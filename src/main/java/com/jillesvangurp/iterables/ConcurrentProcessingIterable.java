@@ -132,6 +132,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
             Output next = null;
             List<Output> currentBlock = null;
             int blockIndex = 0;
+            int recurse;
 
             @Override
             public boolean hasNext() {
@@ -140,16 +141,21 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                         return false;
                     }
                     if (next != null) {
+                        recurse=0;
                         return true;
                     } else if (currentBlock != null && blockIndex < currentBlock.size()) {
                         next = currentBlock.get(blockIndex++);
+                        recurse=0;
                         return true;
-                    } else if ((currentBlock = completedWork.poll(10, TimeUnit.MILLISECONDS)) != null) {
+                    } else if ((currentBlock = completedWork.poll(Math.max(10*recurse,200)+1, TimeUnit.MILLISECONDS)) != null) {
                         blockIndex = 0;
+                        recurse++;
                         return hasNext();
                     } else if (doneProducing.get() && scheduledWork.size() == 0 && completedWork.size() == 0 && activeConsumers.getCount() == 0) {
+                        recurse=0;
                         return false;
                     } else {
+                        recurse++;
                         return hasNext();
                     }
                 } catch (InterruptedException e) {
