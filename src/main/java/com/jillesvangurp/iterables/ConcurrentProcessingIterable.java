@@ -14,6 +14,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Iterable that processes the input concurrently using a {@link Processor} to produce its output.
  * 
@@ -26,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *            type of the output processed by this iterable
  */
 public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Output>, Closeable {
+    private static final Logger LOG = LoggerFactory.getLogger(ConcurrentProcessingIterable.class);
 
     private final int blockSize;
     private final int threadPoolSize;
@@ -112,7 +116,15 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                             if (block != null) {
                                 ArrayList<Output> outputBlock = new ArrayList<>(blockSize);
                                 for (Input input : block) {
-                                    outputBlock.add(processor.process(input));
+                                    try {
+                                        Output processResult = processor.process(input);
+                                        if(processResult == null) {
+                                            throw new IllegalStateException("processor returned null!");
+                                        }
+                                        outputBlock.add(processResult);
+                                    } catch (Exception e) {
+                                        LOG.warn("exception processing item; " + e.getMessage(), e);
+                                    }
                                 }
                                 if (outputBlock.size() > 0) {
                                     completedWork.put(outputBlock);
