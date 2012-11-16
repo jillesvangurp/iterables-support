@@ -2,6 +2,13 @@ package com.jillesvangurp.iterables;
 
 import java.util.Iterator;
 
+/**
+ * Non concurrent variant of the {@link ConcurrentProcessingIterable}. 
+ * @author jilles
+ *
+ * @param <Input>
+ * @param <Output>
+ */
 public class ProcessingIterable <Input,Output> implements Iterable<Output> {
 
     private final Iterator<Input> it;

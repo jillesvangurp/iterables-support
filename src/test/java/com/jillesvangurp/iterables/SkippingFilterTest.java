@@ -9,7 +9,8 @@ import org.testng.annotations.Test;
 
 @Test
 public class SkippingFilterTest {
-    public void shouldSkipSpecifiedNumberOfItems() {
+    @SuppressWarnings("deprecation")
+	public void shouldSkipSpecifiedNumberOfItems() {
         Iterable<Integer> list = Arrays.asList(1,2,3,4,5,6);
         int c=0;
         for(@SuppressWarnings("unused") int i: SkippingFilter.filter(list, 3)) {

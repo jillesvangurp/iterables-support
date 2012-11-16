@@ -6,14 +6,20 @@ Processing content involves things like opening files, parsing them line by line
 
 Most of this stuff is pretty basic and yet you end up with a lot of boiler plate code that needs testing and attention. Java provides you with all the basic building blocks but you have to do a lot of work to put them together.
 
-I've been doing this stuff for some years and usually end up with some mini framework for making life bearable. This time, I started with a clean slate and built it properly with the idea of just putting it out there. So here it is. 
+However, with these classes, you get some nice out of the box features and an easy to use framework with all of the building blocks you need for iterating over and processing blobs of information reliably and fast. This results in a lot less boiler plate code and makes things almost as easy as in python. Combine that with concurrency, decent memory management and a few other things Java coders take for granted and things are starting to look pretty OK.
 
-If you want to do some data crunching in Java, you could do worse than start out with this. Sure, you could go for hadoop or any of the other fancy things out there.  But seriously, processing 10GB of wikipedia dump files is not that demanding that you can justify setting up a hadoop cluster and overengineering what would be a three line python file otherwise. With Java the boiler plate code can be a bit overwhelming. 
-
-However, with these classes, you get some nice out of the box features and an easy to use framework with all of the building blocks you need for iterating over and processing blobs of information reliable and fast. This results in a lot less boiler plate code and makes things almost as easy as in python. Combine that with concurrency, decent memory management and a few other things Java coders take for granted and things are starting to look pretty OK.
+Iterables support makes heavy use of several java language features:
+* anything implementing Iterable<T> can be used with a for each type for loop.
+* anything implementing Closeable cleans up after itself
+* inner classes are the closest thing Java has to closures. 
 
 
 h1. Features and design
+
+Iterables support makes heavy use of several java language features:
+* anything implementing Iterable<T> can be used with a for each type for loop.
+* anything implementing Closeable cleans up after itself, this means no more finally blocks are needed
+* inner classes are the closest thing Java has to closures. 
 
 This framework represents inputs as iterables that one can iterate over using a foreach loop. Several iterables are provided that can be combined to do useful things.
 
@@ -30,6 +36,8 @@ This framework represents inputs as iterables that one can iterate over using a 
 * Sometimes you want to filter what you iterate over: FilteringIterable does that. Simply implement the Filter interface and pass an instance to the FilteringIterable and you've got filtering.
 
 * Sometimes, you want to see what's next before it's coming. PeekableIterable allows a convenient peek() method that behaves just like next but without moving the iterator forward. 
+
+* The Iterables class contains static methods to make usage of the above easy. You may want to use static imports and add this class to your eclipse Favorites.
 
 h1. Installation
 
