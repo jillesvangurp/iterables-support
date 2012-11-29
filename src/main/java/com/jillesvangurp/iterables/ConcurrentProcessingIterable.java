@@ -118,10 +118,9 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
                                 for (Input input : block) {
                                     try {
                                         Output processResult = processor.process(input);
-                                        if(processResult == null) {
-                                            throw new IllegalStateException("processor returned null!");
+                                        if(processResult != null) {
+                                            outputBlock.add(processResult);
                                         }
-                                        outputBlock.add(processResult);
                                     } catch (Exception e) {
                                         LOG.warn("exception processing item; " + e.getMessage(), e);
                                     }
