@@ -41,9 +41,9 @@
     </licenses>
 
     <scm>
-        <url>git://github.com/jillesvangurp/xmltools.git</url>
-        <connection>scm:git:git@github.com:jillesvangurp/xmltools.git</connection>
-        <developerConnection>scm:git:git://github.com/jillesvangurp/xmltools.git</developerConnection>
+        <url>git@github.com:jillesvangurp/iterables-support.git</url>
+        <connection>scm:git:git@github.com:jillesvangurp/iterables-support.git</connection>
+        <developerConnection>scm:git:git@github.com:jillesvangurp/iterables-support.git</developerConnection>
     </scm>
 
 	<distributionManagement>
