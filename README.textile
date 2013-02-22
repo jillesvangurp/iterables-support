@@ -57,4 +57,5 @@ For more details see the LICENSE file
 
 h1. Changelog
 
-TODO
+* 1.0
+** First release
