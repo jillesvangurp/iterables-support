@@ -197,7 +197,7 @@
         <dependency>
             <groupId>com.github.jsonj</groupId>
             <artifactId>jsonj</artifactId>
-            <version>0.9-SNAPSHOT</version>
+            <version>0.9</version>
         </dependency>
     </dependencies>
 </project>
