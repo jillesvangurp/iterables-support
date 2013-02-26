@@ -1,12 +1,13 @@
 package com.jillesvangurp.iterables;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Collection of static methods to make working with the various iterables a bit nicer.
  */
 public class Iterables {
-    
+
     /**
      * Wraps an iterator with an iterable so that you may use it in a for loop.
      * @param it any iterator
@@ -24,7 +25,7 @@ public class Iterables {
     /**
      * @param it
      * @param filter
-     * @return A filtering iterable that applies the the provided filter. 
+     * @return A filtering iterable that applies the the provided filter.
      */
     public static <S> Iterable<S> filter(Iterable<S> it, Filter<S> filter) {
         return new FilteringIterable<S>(it, filter);
@@ -39,7 +40,7 @@ public class Iterables {
     public static <S> Iterable<S> filterRange(Iterable<S> it, final long from, final long to) {
         return filter(it, new Filter<S>() {
             long count=0;
-    
+
             @Override
             public boolean passes(S o) {
                 long current = count++;
@@ -56,7 +57,7 @@ public class Iterables {
     public static <S> Iterable<S> head(Iterable<S> it, final long to) {
         return filter(it, new Filter<S>() {
             long count=0;
-    
+
             @Override
             public boolean passes(S o) {
                 if (count++ <=to) {
@@ -76,7 +77,7 @@ public class Iterables {
     public static <S> Iterable<S> from(Iterable<S> it, final long from) {
         return filter(it, new Filter<S>() {
             long count=0;
-    
+
             @Override
             public boolean passes(S o) {
                 long current = count++;
@@ -94,7 +95,7 @@ public class Iterables {
     public static <I,O> Iterable<O> map(Iterable<I> it, Processor<I,O> processor) {
         return new ProcessingIterable<I, O>(it.iterator(), processor);
     }
-    
+
     /**
      * Compose two or more processors into one.
      * @param first transform into intermediate type
@@ -116,7 +117,7 @@ public class Iterables {
             }
         };
     }
-    
+
     /**
      * @param input
      * @param processor
@@ -127,5 +128,63 @@ public class Iterables {
      */
     public static <Input,Output> ConcurrentProcessingIterable<Input, Output> processConcurrently(Iterable<Input> input, Processor<Input,Output> processor, int blockSize, int threadPoolSize, int queueCapacity) {
         return new ConcurrentProcessingIterable<Input,Output>(input, processor, blockSize, threadPoolSize, queueCapacity);
+    }
+
+    /**
+     * Given a number of iterables, construct a iterable that iterates all of the iterables.
+     * @param iterables
+     * @return an iterable that can provide a single iterator for all the elements of the iterables.
+     */
+    public static <V> Iterable<V> compose(final Iterable<Iterable<V>> iterables) {
+        return toIterable(new Iterator<V>() {
+            Iterator<Iterable<V>> it=iterables.iterator();
+            Iterator<V> current = null;
+            V next = null;
+
+            @Override
+            public boolean hasNext() {
+                if(next != null) {
+                    return true;
+                } else {
+                    if((current == null || !current.hasNext()) && it.hasNext()) {
+                        while(it.hasNext() && (current == null || !current.hasNext())) {
+                            Iterable<V> nextIt = it.next();
+                            if(nextIt != null) {
+                                current = nextIt.iterator();
+                            }
+                        }
+                    }
+                    if(current !=null && current.hasNext()) {
+                        next = current.next();
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public V next() {
+                if(hasNext()) {
+                    V result = next;
+                    next = null;
+                    return result;
+                } else {
+                    throw new NoSuchElementException();
+                }
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Remove is not supported");
+            }
+        });
+    }
+
+    public static <V> long count(Iterable<V> iterable) {
+        long count = 0;
+        for(@SuppressWarnings("unused") V e:iterable) {
+            count++;
+        }
+        return count;
     }
 }
