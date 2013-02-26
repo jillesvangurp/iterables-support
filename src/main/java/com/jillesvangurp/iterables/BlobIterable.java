@@ -107,7 +107,7 @@ public class BlobIterable implements Iterable<String> {
 			}
 		}
 
-		private boolean fastEndsWith(StringBuilder buf, String postFix) {
+		private boolean fastEndsWith(CharSequence buf, String postFix) {
 			// String.endsWith is very slow and creating extra String objects
 			// every time we want to check the StringBuilder content is
 			// inefficient
