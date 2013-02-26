@@ -57,5 +57,8 @@ For more details see the LICENSE file
 
 h1. Changelog
 
+* 1.1
+** Add compose method to Iterables for composing multiple Iterables
+** Add counts method to Iterables for counting the number of elements (useful for testing)
 * 1.0
 ** First release
