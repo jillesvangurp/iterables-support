@@ -119,6 +119,8 @@ public class Iterables {
     }
 
     /**
+     * Process iterable concurrently using the processor. IMPORTANT, you must close the iterable (it implements Closeable) after use otherwise, the process
+     * may never exit.
      * @param input
      * @param processor
      * @param blockSize
