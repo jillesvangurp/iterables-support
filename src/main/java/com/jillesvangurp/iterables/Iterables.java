@@ -182,6 +182,22 @@ public class Iterables {
         });
     }
 
+    /**
+     * Allows you to iterate over objects and cast them to the appropriate type on the fly.
+     * @param it
+     * @param clazz
+     * @return an iterable that casts elements to the specified class.
+     * @throws ClassCastException if the elements are not castable
+     */
+    public static <I,O> Iterable<O> castingIterable(Iterable<I> it, Class<O> clazz) {
+        return map(it, new Processor<I,O>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public O process(I input) {
+                return (O)input;
+            }});
+    }
+
     public static <V> long count(Iterable<V> iterable) {
         long count = 0;
         for(@SuppressWarnings("unused") V e:iterable) {
