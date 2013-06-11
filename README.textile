@@ -24,7 +24,7 @@ This framework represents inputs as iterables that one can iterate over using a 
 ** *ConcurrentProcessingIterable*. Often processing is expensive and you want to process things concurrently. This can be tricky to get right. So, use the ConcurrentProcessingIterable and configure it with the input iterable and a processor. It will do the rest for you and you simply iterate over the processed output.
 ** *FilteringIterable*. Sometimes you want to filter what you iterate over: FilteringIterable does that. Simply implement the Filter interface and pass an instance to the FilteringIterable and you've got filtering.
 ** *PeekableIterable*. Sometimes, you want to see what's next before it's coming. PeekableIterable allows a convenient peek() method that behaves just like next but without moving the iterator forward. 
-* *Iterables*. The Iterables class contains static methods to provide some useful processing and filtering primitives*. You may want to use static imports and add this class to your eclipse Favorites.
+* *Iterables* utility class. The Iterables class contains static methods to provide some useful processing and filtering primitives*. You may want to use static imports and add this class to your eclipse Favorites.
 
 h1. Installation
 
@@ -45,6 +45,9 @@ Like all my other projects, this project is licensed under the so-called MIT lic
 For more details see the LICENSE file
 
 h1. Changelog
+
+* 1.3 
+** Add convenience method to create peeking iterator from an iterable and to create an iterable from any array
 * 1.2
 ** Add castingIterable method to Iterables. Very useful to get rid of stupid casts in loops.
 * 1.1
