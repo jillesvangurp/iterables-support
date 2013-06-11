@@ -16,6 +16,10 @@ public class PeekableIterator<T> implements Iterator<T> {
         this.iterator = iterator;
     }
 
+    public PeekableIterator(Iterable<T> iterable) {
+        this.iterator = iterable.iterator();
+    }
+
     @Override
     public boolean hasNext() {
         return iterator.hasNext() || buffered != null;

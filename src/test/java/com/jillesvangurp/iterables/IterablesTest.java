@@ -1,5 +1,7 @@
 package com.jillesvangurp.iterables;
 
+import static com.jillesvangurp.iterables.Iterables.count;
+import static com.jillesvangurp.iterables.Iterables.toIterable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -48,5 +50,9 @@ public class IterablesTest {
             assertThat("should be a list", l instanceof List);
         }
         assertThat(i, is(2));
+    }
+
+    public void shouldIterateOverArrayIterable() {
+        assertThat(count(toIterable(new Integer[] {1,2,3})), is(3l));
     }
 }

@@ -22,6 +22,32 @@ public class Iterables {
         };
     }
 
+    public static <T> Iterable<T> toIterable(final T[] array) {
+        return toIterable(new Iterator<T>() {
+            int index=0;
+
+            @Override
+            public boolean hasNext() {
+                return index<array.length;
+            }
+
+            @Override
+            public T next() {
+                if(hasNext()) {
+                    return array[index++];
+                } else {
+                    throw new NoSuchElementException();
+                }
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("arrays don't support removing elements");
+            }
+        });
+    }
+
+
     /**
      * @param it
      * @param filter
