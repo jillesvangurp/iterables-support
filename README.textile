@@ -2,15 +2,23 @@ h1. Introduction
 
 Iterables support is a small collection of utility classes that I developed while processing a lot of content in files, which inevitably involves a lot of iterating and a lot of boiler plate code related to that. Basically following the DRY principle, I started collecting some idioms and patterns and ended up with this convenient library. 
 
-If your Java code involves iterating over stuff (and how could it not), you probably want to take a look at this. *Using IterablesSupport will reduce in vastly reduced amounts of boiler plate code in Java*. Almost to the point where the whole 'OMG Java is so verbose' argument that fans of certain other languages use largely goes away.
+If your Java code involves iterating over stuff (and how could it not), you probably want to take a look at this. *Using IterablesSupport will result in vastly reduced amounts of boiler plate code in Java*. Almost to the point where the whole 'OMG Java is so verbose' argument that fans of certain other languages use largely goes away.
 
 Note. this class partially overlaps with Google Guava's Iterables class. However, much more is provided here.
+
+h1. Highlights
+
+* Concurrently *map reduce* any iterable. Use as many threads as you like. Chunk your input iterable to keep your threads busy. Iterate over the aggregated output.
+* Use composable Processor instances for concurrently mapping something to an iterable
+* Compose iterables to loop over multiple iterable objects in one loop.
+* Filter iterables, or look ahead using the PeekableIterable.
+* Iterators for Gzip files, CSV files, Multiline xml files, and more
 
 h1. Features and design
 
 Iterables support makes heavy use of several java language features:
 * anything implementing *Iterable<T>* can be used with a *foreach* type for loop.
-* anything implementing *Closeable* cleans up after itself, this means no more finally blocks are needed for this
+* anything implementing *Closeable* cleans up after itself. Together with Java's try with resources this means no more finally blocks are needed for this and much less boiler plate code is needed. 
 * *inner classes* are the closest thing Java has to closures and you can do some useful stuff with them. 
 
 This framework represents inputs as iterables that one can iterate over using a foreach loop. Several iterables are provided that can be combined to do useful things.
