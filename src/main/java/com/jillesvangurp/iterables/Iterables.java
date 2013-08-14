@@ -4,7 +4,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Collection of static methods to make working with the various iterables a bit nicer.
+ * Collection of static methods for working with iterators and iterables that allow you to filter, process, etc.
+ * elements in an Iterable. The methods in this class make it easy to use many of the more primitive functionality
+ * in this library. You can implement concurrent map reduce logic with just a few lines of code for example.
  */
 public class Iterables {
 
@@ -230,5 +232,24 @@ public class Iterables {
             count++;
         }
         return count;
+    }
+
+    /**
+     * Creates an iterator and iterates over it without doing anything thus 'consuming' the iterable. Useful when
+     * using processing iterables where the side effects are more interesting than the return value of process.
+     */
+    public void consume(Iterable<?> it) {
+        Iterator<?> iterator = it.iterator();
+        consume(iterator);
+    }
+
+    /**
+     *Iterates over an iterator without doing anything with the elements thus 'consuming' the iterator. Useful when
+     * using processing iterables where the side effects are more interesting than the return value of process.
+     */
+    public void consume(Iterator<?> iterator) {
+        while(iterator.hasNext()) {
+            iterator.next();
+        }
     }
 }
