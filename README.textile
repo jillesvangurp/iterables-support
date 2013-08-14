@@ -54,6 +54,8 @@ For more details see the LICENSE file
 
 h1. Changelog
 
+* 1.6
+** Make consume method static so you can actually use it ...
 * 1.5
 ** Add convenience methods for quickly consuming an iterable or iterator.
 * 1.4

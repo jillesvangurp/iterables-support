@@ -238,7 +238,7 @@ public class Iterables {
      * Creates an iterator and iterates over it without doing anything thus 'consuming' the iterable. Useful when
      * using processing iterables where the side effects are more interesting than the return value of process.
      */
-    public void consume(Iterable<?> it) {
+    public static void consume(Iterable<?> it) {
         Iterator<?> iterator = it.iterator();
         consume(iterator);
     }
@@ -247,7 +247,7 @@ public class Iterables {
      *Iterates over an iterator without doing anything with the elements thus 'consuming' the iterator. Useful when
      * using processing iterables where the side effects are more interesting than the return value of process.
      */
-    public void consume(Iterator<?> iterator) {
+    public static void consume(Iterator<?> iterator) {
         while(iterator.hasNext()) {
             iterator.next();
         }
