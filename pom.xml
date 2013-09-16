@@ -155,7 +155,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.8</version>
+            <version>6.8.7</version>
             <type>jar</type>
             <scope>test</scope>
             <exclusions>
@@ -186,17 +186,17 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
+            <version>1.7.5</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>14.0-rc1</version>
+            <version>15.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.jsonj</groupId>
             <artifactId>jsonj</artifactId>
-            <version>1.28</version>
+            <version>1.29</version>
         </dependency>
     </dependencies>
 </project>
