@@ -8,7 +8,7 @@ Note. this class partially overlaps with Google Guava's Iterables class. However
 
 # Highlights
 
-* Concurrently *map reduce* any iterable. Use as many threads as you like. Chunk your input iterable to keep your threads busy. Iterate over the aggregated output.
+* Concurrently *map and reduce* any iterable. Use as many threads as you like. Chunk your input iterable to keep your threads busy. Iterate over the aggregated output.
 * Use composable Processor instances for concurrently mapping something to an iterable
 * Compose iterables to loop over multiple iterable objects in one loop.
 * Filter iterables, or look ahead using the PeekableIterable.
@@ -63,7 +63,12 @@ Like all my other projects, this project is licensed under the so-called MIT lic
 For more details see the LICENSE file
 
 # Changelog
-
+* 1.8
+    * Add support for reduce function to complement the already implemented map function
+    * Concurrent map reduce.
+    * fix toIterable so that it is able to iterate more than once over the same array
+* 1.7
+    * Now in maven central
 * 1.6
     * Make consume method static so you can actually use it ...
 * 1.5
