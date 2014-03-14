@@ -1,6 +1,8 @@
 package com.jillesvangurp.iterables;
 
+import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -24,29 +26,39 @@ public class Iterables {
         };
     }
 
+    /**
+     * @param array
+     * @return Iterable that allows you to iterate over the array
+     */
     public static <T> Iterable<T> toIterable(final T[] array) {
-        return toIterable(new Iterator<T>() {
-            int index=0;
+        return new Iterable<T>() {
 
             @Override
-            public boolean hasNext() {
-                return index<array.length;
-            }
+            public Iterator<T> iterator() {
+                return new Iterator<T>() {
+                    int index=0;
 
-            @Override
-            public T next() {
-                if(hasNext()) {
-                    return array[index++];
-                } else {
-                    throw new NoSuchElementException();
-                }
-            }
+                    @Override
+                    public boolean hasNext() {
+                        return index<array.length;
+                    }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("arrays don't support removing elements");
+                    @Override
+                    public T next() {
+                        if(hasNext()) {
+                            return array[index++];
+                        } else {
+                            throw new NoSuchElementException();
+                        }
+                    }
+
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException("arrays don't support removing elements");
+                    }
+                };
             }
-        });
+        };
     }
 
 
@@ -124,6 +136,21 @@ public class Iterables {
         return new ProcessingIterable<I, O>(it.iterator(), processor);
     }
 
+    public static <T> T reduce(Iterable<T> it, Reducer<T> reducer) {
+        Iterator<T> iterator = it.iterator();
+        if(!iterator.hasNext()) {
+            throw new NoSuchElementException();
+        } else {
+            T current = iterator.next();
+            T output = reducer.reduce(current);
+            while(iterator.hasNext()) {
+                current = iterator.next();
+                output = reducer.reduce(output, current);
+            }
+            return output;
+        }
+    }
+
     /**
      * Compose two or more processors into one.
      * @param first transform into intermediate type
@@ -158,6 +185,24 @@ public class Iterables {
      */
     public static <Input,Output> ConcurrentProcessingIterable<Input, Output> processConcurrently(Iterable<Input> input, Processor<Input,Output> processor, int blockSize, int threadPoolSize, int queueCapacity) {
         return new ConcurrentProcessingIterable<Input,Output>(input, processor, blockSize, threadPoolSize, queueCapacity);
+    }
+
+    public static <Input,Output> Output mapReduce(Iterable<Input> input, final Processor<Input,Output> mapper, final Reducer<Output> reducer, int blockSize, int threadPoolSize, int queueCapacity) {
+        Processor<List<Input>, Output> pageProcessor = new Processor<List<Input>, Output> () {
+            @Override
+            public Output process(List<Input> input) {
+                return reduce(map(input, mapper), reducer);
+            }
+
+        };
+
+        Output result = null;
+        try(ConcurrentProcessingIterable<List<Input>, Output> processor = processConcurrently(page(input, blockSize), pageProcessor, blockSize, threadPoolSize, queueCapacity)) {
+            result = reduce(processor, reducer);
+        } catch (IOException e) {
+            throw new IllegalStateException("error during map reduce", e);
+        }
+        return result;
     }
 
     /**
@@ -251,5 +296,9 @@ public class Iterables {
         while(iterator.hasNext()) {
             iterator.next();
         }
+    }
+
+    public static <T> Iterable<List<T>> page(Iterable<T> it, int pageSize) {
+        return new PagingIterable<>(it, pageSize);
     }
 }

@@ -1,6 +1,8 @@
 package com.jillesvangurp.iterables;
 
 import static com.jillesvangurp.iterables.Iterables.count;
+import static com.jillesvangurp.iterables.Iterables.mapReduce;
+import static com.jillesvangurp.iterables.Iterables.reduce;
 import static com.jillesvangurp.iterables.Iterables.toIterable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -54,5 +56,37 @@ public class IterablesTest {
 
     public void shouldIterateOverArrayIterable() {
         assertThat(count(toIterable(new Integer[] {1,2,3})), is(3l));
+    }
+
+    public void shouldIterateMultipletimesOverSameIterable() {
+        Iterable<Integer> it = toIterable(new Integer[] {1,2,3});
+        assertThat(count(it), is(3l));
+        assertThat(count(it), is(3l));
+    }
+
+    public void shouldReduceInts() {
+        int total = reduce(toIterable(new Integer[] {1,2,3}), Reducers.sum(Integer.class));
+        assertThat(total, is(6));
+    }
+
+    public void shouldReduceLongs() {
+        Long total = reduce(toIterable(new Long[] {1l,2l,3l}), Reducers.sum(Long.class));
+        assertThat(total, is(6l));
+    }
+
+    public void shouldMapReduceConcurrently() {
+        ArrayList<Integer> l = new ArrayList<Integer>();
+        for(int i = 0; i< 666; i++) {
+            l.add(666);
+        }
+
+        Processor<Integer,Integer> identityProcessor = new Processor<Integer,Integer>() {
+
+            @Override
+            public Integer process(Integer input) {
+                return input;
+            }};
+        Integer reduced = mapReduce(l, identityProcessor, Reducers.sum(Integer.class), 5, 10, 100);
+        assertThat(reduced, is(666*l.size()));
     }
 }
