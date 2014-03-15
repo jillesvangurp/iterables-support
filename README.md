@@ -27,6 +27,10 @@ Iterables support makes heavy use of several java language features:
 
 # Overview
 
+## Iterables class
+
+This library allows for a fluent style use and most of the important features are easily accessible through static methods in the `Iterables` class.
+
 ## Iterating over files.
 
 The core reason for creating this library was to make processing content in files less tedious. Several classes are provided that allow you to iterate over files in different ways.
