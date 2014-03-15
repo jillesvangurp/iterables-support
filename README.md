@@ -1,38 +1,6 @@
 # Introduction
 
-Iterables support is a small collection of utility classes that I developed while processing a lot of content in files, which inevitably involves a lot of iterating and a lot of boiler plate code related to that. Basically following the DRY principle, I started collecting some idioms and patterns and ended up with this convenient library. 
-
-If your Java code involves iterating over stuff (and how could it not), you probably want to take a look at this. *Using IterablesSupport will result in vastly reduced amounts of boiler plate code in Java*. Almost to the point where the whole 'OMG Java is so verbose' argument that fans of certain other languages use largely goes away.
-
-Note. this class partially overlaps with Google Guava's Iterables class. However, much more is provided here.
-
-# Highlights
-
-* Concurrently *map and reduce* any iterable. Use as many threads as you like. Chunk your input iterable to keep your threads busy. Iterate over the aggregated output.
-* Use composable Processor instances for concurrently mapping something to an iterable
-* Compose iterables to loop over multiple iterable objects in one loop.
-* Filter iterables, or look ahead using the PeekableIterable.
-* Iterators for Gzip files, CSV files, Multiline xml files, and more
-
-# Features and design
-
-Iterables support makes heavy use of several java language features:
-* anything implementing *Iterable<T>* can be used with a *foreach* type for loop.
-* anything implementing *Closeable* cleans up after itself. Together with Java's try with resources this means no more finally blocks are needed for this and much less boiler plate code is needed. 
-* *inner classes* are the closest thing Java has to closures and you can do some useful stuff with them. 
-
-This framework represents inputs as iterables that one can iterate over using a foreach loop. Several iterables are provided that can be combined to do useful things.
-
-* Processing files.
-    * *LineIterable*. The most basic iterable is the LineIterable, which takes a stream and iterates over the lines as strings. It basically makes dealing with BufferedReaders a lot less tedious.
-    * *CSVLineIterable*. If you have a simple csv file, you can use the line iterable to construct a CSVLineIterable and iterate over the list of fields.
-    * *MergingCSVIterable*. Say you have two csv files that have a 1 to many relation and you want the join of those two files. Provided the files are sorted correctly, you can merge using an id. MergingCSVIterable does this. I've used it for processing millions of GeoNames and their translations (in a separate file).  
-    * *BlobIterable*. If you have a big xml file with tags inside that you want to process that span multiple lines, use the BlobIterable and process each blob separately. Simply configure it with the begin and end tag and process each blob one by one.
-* General purpose iterables
-    * *ConcurrentProcessingIterable*. Often processing is expensive and you want to process things concurrently. This can be tricky to get right. So, use the ConcurrentProcessingIterable and configure it with the input iterable and a processor. It will do the rest for you and you simply iterate over the processed output.
-    * *FilteringIterable*. Sometimes you want to filter what you iterate over: FilteringIterable does that. Simply implement the Filter interface and pass an instance to the FilteringIterable and you've got filtering.
-    * *PeekableIterable*. Sometimes, you want to see what's next before it's coming. PeekableIterable allows a convenient peek() method that behaves just like next but without moving the iterator forward. 
-* *Iterables* utility class. The Iterables class contains static methods to provide some useful processing and filtering primitives*. You may want to use static imports and add this class to your eclipse Favorites.
+Iterables support builds on language features in Java 7 to provide some features that those familiar with more powerful scripting languages such as javascript or ruby would be familiar with. This reduces the amount of boiler plate that needs to be written for doing things like iterating over lines in a file, doing map reduce style processing, and using Java's concurrency features to do this fast.
 
 # Get it from Maven Central
 
@@ -45,6 +13,108 @@ This framework represents inputs as iterables that one can iterate over using a 
 ```
 
 Note. check for the latest version. I do not always update the readme.
+
+# Design
+
+Iterables support makes heavy use of several java language features:
+* anything implementing *Iterable<T>* can be used with a *foreach* type for loop.
+* anything implementing *Closeable* cleans up after itself. Together with Java's try with resources this means no more finally blocks are needed for this and much less boiler plate code is needed. 
+* *inner classes* are the closest thing Java has to closures and you can do some useful stuff with them. 
+
+# Overview
+
+## Iterating over content in files or streams.
+
+### LineIterable
+
+Allows you to iterate over the lines in a file without having to juggle a lot of streams, readers, etc. Supports try with resources so you don't have to worry about dangling file handles. Supports both plain text and gzipped files. 
+
+```
+try(LineIterable it = LineIterable.openGzipFile(fileName)) {
+  for(String line: it) {
+    ..
+  }
+} catch(IOException e) {
+  ...
+}
+```
+
+### CSVLineIterable
+
+Similar to LineIterable but parses the line into a list of fields using a configurable delimiter. So you can iterate over lists of fields.
+
+### MergingCSVIterable
+
+If you have two csv files sorted on a particular column with an id, this class can perform a join. Useful if you want to e.g. process Geonames data and merge translations with poi data.
+
+### BlobIterable
+
+Sometimes what you want to iterate over in a file can span multiple lines. For example xml files commonly have xml fragments that span many lines. E.g. openstreet map nodes have coordinates and properties and each node can span several lines. With this iterable, you can foreach over such content easily. I've used it with open streetmap, wikipedia and several other datasources.
+
+## Functional programming
+
+Java is somewhat limited when it comes to functional progamming. However, using iterables and inner classes, you can actually make it do some useful things. 
+
+
+### Iterables.map
+
+`public static <I,O> Iterable<O> map(Iterable<I> it, Processor<I,O> processor)`
+
+Allows you to iterate over the processed input.
+
+### Iterables.reduce
+
+`public static <T> T reduce(Iterable<T> it, Reducer<T> reducer)`
+
+Allows you to reduce the iterable. 
+
+### Iterables.compose
+
+`<I,S,O> Processor<I,O> compose(final Processor<I,S> first, final Processor<S,O> last, final Processor<O,O>...extraSteps)`
+
+Compose two or more processors into one processor that you can use with the map function.
+
+### Concurrency: ConcurrentProcessingIterable
+
+Use multiple threads to concurrently map or map/reduce any iterable. Uses try with resources so you don't have to worry about creating and destroying threads and executors. 
+
+Extremely easy to use with these two functions:
+
+- Iterables.processConcurrently
+- Iterables.mapReduce
+ 
+```
+        // some large input
+        List<Integer> it = new ArrayList<>();
+        for(int i=0; i< 1000000;i++) {
+            input.add(i);
+        }
+        
+        // a trivial processor
+        Processor<Integer, Integer> doubler new Processor<Integer, Integer>() {
+
+            @Override
+            public Integer process(Integer input) {
+                return 2*input;
+            }
+        }
+        
+        // now lets concurrently process this with 50 threads each processing chunks of 100 in each thread using a buffer of 10000 elements
+        try(ConcurrentProcessingIterable<Integer, Integer> cpi = Iterables.processConcurrently(it, doubler, 50, 100, 10000)){    
+            int count=0;
+            for(Integer i:cpi) {
+                System.out.println("" + i);
+            }
+            assertThat(count, is(totalInput));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        // or lets use map reduce to sum up the numbers concurrently
+        int total = Iterables.mapReduce(it, processor, Reducers.sum(), 50, 300, 10000)
+        
+```
+
 
 # Building from source
 
