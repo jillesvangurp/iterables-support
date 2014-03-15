@@ -126,7 +126,7 @@ Extremely easy to use with these two functions:
 
 - `PeekingIterable` Iterable with a look ahead feature where you can inspect the next element before consuming it.
 - `FilteringIterable` Filters out elements from an iterable using a simple Filter instance. Used in several convenient methods in Iterables such as filter, filterRange, head, from.
-- `PagingIterable` turns an `Iterable<T>` into an iterable of `List<T>`. You can configure the page size. Used in mapReduce and exposed via `Iterables.page` as well.
+- `PagingIterable` turns an `Iterable<T>` into a `Iterable<List<T>>` so that you can 'page' through an iterable. Used in mapReduce and exposed via `Iterables.page` as well.
 
 # Building from source
 
