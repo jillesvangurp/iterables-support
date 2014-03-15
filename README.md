@@ -80,12 +80,14 @@ Compose two or more processors into one processor that you can use with the map 
 
 ### Concurrency: ConcurrentProcessingIterable
 
-Use multiple threads to concurrently map or map/reduce any iterable. Uses try with resources so you don't have to worry about creating and destroying threads and executors. 
+The map and reduce functions above are single threaded. Sometimes, it is nice to use multiple threads and process things a bit faster if you have a nice multi core CPU. ConcurrentProcessingIterable allows you to do just that.
+
+`ConcurrentProcessingIterable` implements the producer consumer pattern and uses a queue to provide data from the producer thread to the consumer threads that each apply the processor to their input. The result is of course iterable, so you can concurrently process input simply by iterating over the output. Uses try with resources so you don't have to worry about creating and destroying threads and executors, etc. 
 
 Extremely easy to use with these two functions:
 
-- Iterables.processConcurrently
-- Iterables.mapReduce
+- `Iterables.processConcurrently(..)`
+- `Iterables.mapReduce(..)`
  
 ```
         // some large input
@@ -118,7 +120,6 @@ Extremely easy to use with these two functions:
         int total = Iterables.mapReduce(it, processor, Reducers.sum(), 50, 300, 10000)
         
 ```
-
 
 # Building from source
 
