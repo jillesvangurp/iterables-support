@@ -27,7 +27,9 @@ Iterables support makes heavy use of several java language features:
 
 # Overview
 
-## Iterating over content in files or streams.
+## Iterating over files.
+
+The core reason for creating this library was to make processing content in files less tedious. Several classes are provided that allow you to iterate over files in different ways.
 
 ### LineIterable
 
@@ -120,6 +122,12 @@ Extremely easy to use with these two functions:
         int total = Iterables.mapReduce(it, processor, Reducers.sum(), 50, 300, 10000)
         
 ```
+
+## Misc features
+
+- `PeekingIterable` Iterable with a look ahead feature where you can inspect the next element before consuming it.
+- `FilteringIterable` Filters out elements from an iterable using a simple Filter instance. Used in several convenient methods in Iterables such as filter, filterRange, head, from.
+- `PagingIterable` turns an `Iterable<T>` into an iterable of `List<T>`. You can configure the page size. Used in mapReduce and exposed via `Iterables.page` as well.
 
 # Building from source
 
