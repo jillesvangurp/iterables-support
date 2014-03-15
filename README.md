@@ -33,11 +33,14 @@ This library allows for a fluent style usage and most of the important features 
 
 ## Iterating over files.
 
-The core reason for creating this library was to make processing content in files less tedious. Several classes are provided that allow you to iterate over files in different ways.
+The core reason for creating this library was to make processing content in files less tedious. Other languages such as python provide some convenient features for this and there is no reason why this cannot be similarly easy in Java. The core idea here is that when processing files you basically want to open them and then iterate over the content. 
+
 
 ### LineIterable
 
-Allows you to iterate over the lines in a file without having to juggle a lot of streams, readers, etc. Supports try with resources so you don't have to worry about dangling file handles. Supports both plain text and gzipped files. 
+Iterating over lines in a file requires a lot of tedious and error prone code. You need to create a FileInputStream, wrap that with an InputStreamReader and set the encoding correctly (UTF8 is not default on all platforms), then you want to wrap that with a BufferedReader so that you can use readLine. These classes can throw exceptions and you need to ensure close gets called. In my career I've seen many programmers do this wrong and I've cleaned up more than a bit of code written by others that had utf8 encoding issues, was leaking filehandles, was calling close() outside a finally block, or not at all.
+
+`LineIterable` fixes this problem and allows you to iterate over the lines in a file without having to juggle a lot of streams, readers, etc. Supports try with resources so you don't have to worry about dangling file handles.  
 
 ```
 try(LineIterable it = LineIterable.openGzipFile(fileName)) {
