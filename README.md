@@ -59,8 +59,7 @@ Sometimes what you want to iterate over in a file can span multiple lines. For e
 
 ## Functional programming
 
-Java is somewhat limited when it comes to functional progamming. However, using iterables and inner classes, you can actually make it do some useful things. 
-
+Java is somewhat limited when it comes to functional progamming. However, using iterables and inner classes, you can actually make it do some useful things and Java is actually pretty good at doing things concurrently.
 
 ### Iterables.map
 
