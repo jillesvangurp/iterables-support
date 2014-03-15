@@ -2,6 +2,10 @@
 
 Iterables support builds on language features in Java 7 to provide some features that those familiar with more powerful scripting languages such as javascript or ruby would be familiar with. This reduces the amount of boiler plate that needs to be written for doing things like iterating over lines in a file, doing map reduce style processing, and using Java's concurrency features to do this fast.
 
+When processing large amounts of data in files, you often can't afford to load all of it in memory. Iterating avoids doing that and having some simple ways of applying map reduce functions to the iterator allows you to do processing.
+
+Programming this in Java from scratch results in large amounts of boiler plate code. Iterables-support vastly reduces this boiler plate code. It's still Java of course so some amount of it is unavoidable but I've used this library successfully to do fairly complicated things with huge amounts of open streetmap, wikipedia and other data.
+
 # Get it from Maven Central
 
 ```
@@ -131,6 +135,10 @@ If anyone wants to fix stuff just send me a pull request.
 Like all my other projects, this project is licensed under the so-called MIT license. 
 
 For more details see the LICENSE file
+
+# Future
+
+Obviously, Java 8 is around the corner with lambda support and many other goodies that will make some things in this library redundant. I will most likely switch to using Java 8 in the next year or so and will probably update this library at that point.
 
 # Changelog
 * 1.8
