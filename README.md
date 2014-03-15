@@ -120,7 +120,7 @@ Extremely easy to use with these two functions:
 
 It's a maven project. So, checking it out and doing a mvn clean install should do the trick.
 
-Alternatively, you can exercise your rights under the license and simply copy and adapt as needed. The "license":https://github.com/jillesvangurp/iterables-support/blob/master/LICENSE allows you to do this and I have no problems with this although I do appreciate attribution.
+Alternatively, you can exercise your rights under the license and simply copy and adapt as needed. The [license](https://github.com/jillesvangurp/iterables-support/blob/master/LICENSE) allows you to do this and I have no problems with this although I do appreciate attribution.
 
 Should anyone like this licensed differently, please contact me.
 
