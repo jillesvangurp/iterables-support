@@ -12,7 +12,7 @@ Programming this in Java from scratch results in large amounts of boiler plate c
 <dependency>
     <groupId>com.jillesvangurp</groupId>
     <artifactId>iterables-support</artifactId>
-    <version>1.7</version>
+    <version>1.8</version>
 </dependency>
 ```
 
