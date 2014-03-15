@@ -1,6 +1,6 @@
 # Introduction
 
-Iterables support builds on language features in Java 7 to provide some features that those familiar with more powerful scripting languages such as javascript or ruby would be familiar with. This reduces the amount of boiler plate that needs to be written for doing things like iterating over lines in a file, doing map reduce style processing, and using Java's concurrency features to do this fast.
+Iterables support builds on language features in Java 7 to provide some features that those familiar with more powerful scripting languages such as python, javascript, or ruby would be familiar with. This reduces the amount of boiler plate that needs to be written for doing things like iterating over lines in a file, doing map reduce style processing, and using Java's concurrency features to do this fast.
 
 When processing large amounts of data in files, you often can't afford to load all of it in memory. Iterating avoids doing that and having some simple ways of applying map reduce functions to the iterator allows you to do processing.
 
