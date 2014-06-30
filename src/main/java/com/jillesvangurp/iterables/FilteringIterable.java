@@ -5,8 +5,8 @@ import java.util.NoSuchElementException;
 
 /**
  * Filter the elements in an Iterable using a {@link Filter}.
- * 
- * @param <T>
+ *
+ * @param <T> the type that is filtered
  */
 public class FilteringIterable<T> implements Iterable<T> {
     private final Iterable<T> iterable;

@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Iterable that processes the input concurrently using a {@link Processor} to produce its output.
- * 
+ *
  * Please note that this class implements {@link Closeable} and that you are supposed to use a try with resources call.
  * The reason for this is to guarantee the executor used for delegating the work is shut down correctly.
- * 
+ *
  * @param <Input>
  *            type of the input processed by this iterable
  * @param <Output>
@@ -44,7 +44,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
 
     /**
      * Create a new iterable.
-     * 
+     *
      * @param input
      *            iterable with the input
      * @param processor
@@ -56,7 +56,7 @@ public class ConcurrentProcessingIterable<Input, Output> implements Iterable<Out
      *            number of threads used. What is sensible very much depends on the work load of the processor.
      *            Generally you don't want to have more threads than CPU cores + one for the producer thread used
      *            internally to queue stuff for the worker threads.
-     * @param queueCapacity
+     * @param queueCapacity number of items to keep queued before the producer thread blocks. Tune this to ensure the consumers have enough to do.
      */
     public ConcurrentProcessingIterable(Iterable<Input> input, Processor<Input, Output> processor, int blockSize, int threadPoolSize, int queueCapacity) {
         this.input = input;

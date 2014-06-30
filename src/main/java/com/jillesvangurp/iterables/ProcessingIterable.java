@@ -3,11 +3,10 @@ package com.jillesvangurp.iterables;
 import java.util.Iterator;
 
 /**
- * Non concurrent variant of the {@link ConcurrentProcessingIterable}. 
- * @author jilles
+ * Non concurrent variant of the {@link ConcurrentProcessingIterable}.
  *
- * @param <Input>
- * @param <Output>
+ * @param <Input> input type
+ * @param <Output> output type
  */
 public class ProcessingIterable <Input,Output> implements Iterable<Output> {
 
@@ -18,7 +17,7 @@ public class ProcessingIterable <Input,Output> implements Iterable<Output> {
         this.it = it;
         this.processor = processor;
     }
-    
+
     @Override
     public Iterator<Output> iterator() {
         return new Iterator<Output>() {

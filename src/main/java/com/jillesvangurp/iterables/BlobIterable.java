@@ -34,7 +34,7 @@ import java.util.NoSuchElementException;
  * blobs one by one instead of parsing the whole file all at once, which over a certain size
  * might be very challenging.
  *
- * Basically this class is an Iterable<String>, which means you can simply use a
+ * Basically this class is an Iterable of String, which means you can simply use a
  * for each loop to iterate over the content.
  *
  * Note. make sure to close the reader after iterating. This class does not attempt to close the reader.
@@ -45,11 +45,6 @@ public class BlobIterable implements Iterable<String> {
 	private final String openTag;
 	private final String closeTag;
 
-	/**
-	 * @param r reader, DO NOT forget to close the reader!
-	 * @param openTag
-	 * @param closeTag
-	 */
 	public BlobIterable(Reader r, String openTag, String closeTag) {
 		this.r = r;
 		this.openTag = openTag;

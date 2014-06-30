@@ -5,7 +5,7 @@ import java.util.Iterator;
 /**
  * Iterator that implements a peek method.
  *
- * @param <T>
+ * @param <T> type
  */
 public class PeekableIterator<T> implements Iterator<T> {
 
